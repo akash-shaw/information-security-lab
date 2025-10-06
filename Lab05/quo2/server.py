@@ -40,4 +40,4 @@ def start_server(host='localhost', port=65432):
 
 
 if __name__ == '__main__':
-    start_server()
+        start_server()

@@ -50,5 +50,5 @@ if __name__ == '__main__':
     print("== Test without tampering ==")
     send_data("Hello, world!")
 
-    print("\n== Test with tampering ==")
-    send_data("Hello, world!", tamper=True)
+    # print("\n== Test with tampering ==")
+    # send_data("Hello, world!", tamper=True)
