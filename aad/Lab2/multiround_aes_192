@@ -1,0 +1,61 @@
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+
+def aes_cipher(key):
+    return AES.new(key.encode('utf-8'), AES.MODE_ECB)
+
+def aes_en(ptext, key):
+    cipher = aes_cipher(key)
+    ptext = pad(ptext.encode('utf-8'), AES.block_size)
+    return cipher.encrypt(ptext)
+
+def aes_de(ctext, key):
+    cipher = aes_cipher(key)
+    decrypted = cipher.decrypt(ctext)
+    return unpad(decrypted, AES.block_size).decode('utf-8')
+
+def aespad_key(key):
+        return key.ljust(24)[:24]
+
+def aes_en_trace(ptext, key):
+    key = aespad_key(key)
+    key_bytes = key.encode('utf-8')
+    cipher = AES.new(key_bytes, AES.MODE_ECB)
+    blocks = pad(ptext.encode('utf-8'), AES.block_size)
+
+    print("AES-192 (ECB) concise steps:")
+    print("  • Key expansion: Nk=6, Nb=4, Nr=12 → 13 round keys")
+    print("  • Initial round: AddRoundKey")
+    print("  • Main rounds (1..11): SubBytes → ShiftRows → MixColumns → AddRoundKey")
+    print("  • Final round (12): SubBytes → ShiftRows → AddRoundKey\n")
+
+    out = bytearray()
+    for i in range(0, len(blocks), 16):
+        block = blocks[i:i+16]
+        print(f"Block {i//16} plaintext: {block.hex()}")
+        print("  Round 0: AddRoundKey")
+        for r in range(1, 12):
+            print(f"  Round {r}: SubBytes → ShiftRows → MixColumns → AddRoundKey")
+        print("  Round 12: SubBytes → ShiftRows → AddRoundKey")
+        cblock = cipher.encrypt(block)
+        print(f"  Ciphertext block: {cblock.hex()}\n")
+        out.extend(cblock)
+    return bytes(out)
+
+def main():
+    default_pt = "MIT AES DEMO"        
+    default_key = "MIT-AES-192-DEMO-KEY-24!"  
+
+    ptext = input(f"Enter plaintext (blank={default_pt}): ").strip()
+    key = input(f"Enter key (blank={default_key}): ").strip()
+    if not ptext:
+        ptext = default_pt
+    if not key:
+        key = default_key
+
+    ctext = aes_en_trace(ptext, key)
+    print("Ciphertext:", ctext.hex())
+    print("Decrypted:", aes_de(ctext, aespad_key(key)))
+
+if __name__ == '__main__':
+    main()
